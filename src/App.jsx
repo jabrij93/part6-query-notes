@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
-import { getNotes, createNote } from './requests'
+import { getNotes, createNote, updateNote } from './requests'
 
 const App = () => {
   const queryClient = useQueryClient()
@@ -12,15 +11,22 @@ const App = () => {
     }
   })
 
+  const updateNoteMutation = useMutation({
+    mutationFn: updateNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] })
+    },
+  })
+
+  const toggleImportance = (note) => {
+    updateNoteMutation.mutate({...note, important: !note.important })
+  }
+
   const addNote = async (event) => {
     event.preventDefault()
     const content = event.target.note.value
     event.target.note.value = ''
     newNoteMutation.mutate({ content, important: true })
-  }
-
-  const toggleImportance = (note) => {
-    console.log('toggle importance of', note.id)
   }
 
   const result = useQuery({
